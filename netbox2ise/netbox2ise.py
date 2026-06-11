@@ -48,7 +48,11 @@ def cli():
 
 
 @click.command()
-@click.option("--data-file", default=None, help="YAML datafile for netbox2ise")
+@click.option(
+    "--data-file",
+    required=True,
+    help="YAML datafile for netbox2ise",
+)
 @click.option(
     "--remove-extra",
     default=False,
@@ -153,7 +157,11 @@ def sync(data_file, remove_extra, debug):
 
 
 @click.command()
-@click.option("--data-file", default=None, help="YAML datafile for netbox2ise")
+@click.option(
+    "--data-file",
+    required=True,
+    help="YAML datafile for netbox2ise",
+)
 @click.option(
     "--display-group-diff",
     default=False,

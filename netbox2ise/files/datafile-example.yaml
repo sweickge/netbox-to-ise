@@ -1,9 +1,20 @@
 # Example datafile for syncing NetBox and Cisco ISE 
 defaults: 
   netbox_server: 
-    url: http://netbox.exmaple.local
+    url: http://netbox.example.local
     # If no token is provided or if it is false, an ENV of NETBOX_TOKEN will be looked for
-    token: nadkafniadkafnakdandakdnadkadnadks  
+    token: nadkafniadkafnakdandakdnadkadnadks
+    # Optional: TLS certificate verification (HTTPS). Defaults to false.
+    # Set to true to enable verification.
+    # Note: lab/internal NetBox deployments often use self-signed certs that
+    # are not signed by a public CA, in which case verify: false is required
+    # (or set ca_cert below to a trusted internal CA bundle).
+    verify: false
+    # Optional: path to a CA bundle file (or directory of certs) used to
+    # validate the NetBox server certificate. Ignored when verify is false.
+    # If omitted, the standard requests env vars REQUESTS_CA_BUNDLE and
+    # CURL_CA_BUNDLE are honored automatically.
+    ca_cert: /etc/ssl/certs/internal-ca.pem
   ise_server: 
     address: ise.example.local  # or an IP address
     # If no username is provided or if it is false, an ENV of ISE_USER will be looked for

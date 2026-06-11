@@ -12,7 +12,7 @@ This project aims to use NetBox as a Source of Truth for ISE Network Devices and
 
 > Note: This project was developed and tested with the following software versions. It might work with older/newer versions, but as APIs and features changes issues might be encountered.
 >
-> * NetBox: v4.3 (also has been tested with v3.3)
+> * NetBox: v4.5.10 (also has been tested with v4.3 and 3.3)
 > * Cisco ISE: v3.1 Patch 7, v3.3
 
 ## Table of Contents
@@ -45,29 +45,23 @@ As a Source of Truth, NetBox uses many fields to organize devices that can be us
 In its current state, `netbox2ise` requires the following steps to install and use. 
 
 1. Clone down this repo to your workstation and move into the directory
-1. Create and activate a Python Virtual Environment to work within.  Python 3.8 is recommended, though other versions may work. 
+
+2. Create and activate a Python Virtual Environment to work within. Python 3.12 is recommended, though other versions may work.
 
     ```shell
-    python3.8 -m venv venv
+    python3.12 -m venv venv
     source venv/bin/activate
     ```
 
-1. Install the Python requirements from [`requirements.txt`](requirements.txt)
+3. Install the `netbox2ise` tool. This will install the tool as well as all the dependencies
 
     ```shell
-    pip install -r requirements.txt
+    pip install .
     ```
-
     > Note: `netbox2ise` uses one of 2 public Python ISE library depending on the version of ISE you are using with the tool:
       * https://github.com/falkowich/pyise-ers for versions of ISE earlier than 3.1
       * https://github.com/CiscoISE/ciscoisesdk for ISE version 3.1 and later
       * The `requirements.txt` file installs both of these libraries and dynamically determines at runtime which library to source, depending on the version string in the datafile or environment variable
-
-1. Install the `netbox2ise` tool. 
-
-    ```shell
-    python setup.py install 
-    ```
 
 ## TL:DR - Getting Started Quickly 
 We will dive into details on how the tool works under the hood, but let's start with a simple look at how to use it.  For this discussion the following assumptions are made. 
@@ -97,7 +91,18 @@ defaults:
   netbox_server: 
     url: http://netbox.exmaple.local
     # If no token is provided or if it is false, an ENV of NETBOX_TOKEN will be looked for
-    token: nadkafniadkafnakdandakdnadkadnadks  
+    token: nadkafniadkafnakdandakdnadkadnadks
+    # TLS certificate verification (HTTPS). Defaults to false.
+    # Set to true to enable verification.
+    # Note: lab/internal NetBox deployments often use self-signed certs that
+    # are not signed by a public CA, in which case verify: false is required
+    # (or set ca_cert below to a trusted internal CA bundle).
+    verify: false
+    # Path to a CA bundle file (or directory of certs) used to validate the
+    # NetBox server certificate. Ignored when verify is false. If omitted,
+    # the standard requests env vars REQUESTS_CA_BUNDLE and CURL_CA_BUNDLE
+    # will work automatically.
+    ca_cert: /etc/ssl/certs/internal-ca.pem
   ise_server: 
     address: ise.example.local  # or an IP address
     # If no username is provided or if it is false, an ENV of ISE_USER will be looked for

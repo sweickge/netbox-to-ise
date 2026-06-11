@@ -1,7 +1,8 @@
 pyise-ers==0.2.0.1
-pynetbox==7.5.0
+pynetbox==7.6.1
 deepdiff==5.8.1
-PyYAML==6.0.2
+PyYAML==6.0.1
 rich==12.5.1
 urllib3==1.26.6
+click==8.1.8
 ciscoisesdk==2.3.1

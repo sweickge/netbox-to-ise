@@ -71,16 +71,28 @@ def test_datafile(data_file):
                 else getenv("NETBOX_TOKEN")
             )
 
+            # Default SSL verification to False unless explicitly enabled
+            # in the data-file.
+            netbox_server.setdefault("verify", False)
+
+            # Optional CA bundle path for TLS verification. If not set in the
+            # data-file, the standard ``requests`` env vars (REQUESTS_CA_BUNDLE
+            # / CURL_CA_BUNDLE) can be used
+            netbox_server.setdefault("ca_cert", None)
+
             # Attempt to connect to the netbox server
             netbox_test = verify_netbox(netbox_server)
             if netbox_test["status"]:
                 rprint(
                     f"[blue]NetBox Server {netbox_server['url']} successfully connected to."
                 )
+                if netbox_server["verify"]:
+                    rprint("[blue]NetBox TLS verification enabled.")
             else:
                 rprint(
-                    f"[red]Problem connecting to NetBox Server {netbox_server['url']}."
+                    f"[red]Problem connecting to NetBox Server {netbox_server['url']}. Error: {netbox_test['message']}"
                 )
+                errors.append(f"Problem connecting to NetBox Server {netbox_server['url']}")
         else:
             errors.append("netbox_server data is missing.")
 

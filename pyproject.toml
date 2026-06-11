@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "netbox2ise"
+version = "0.4"
+description = "Keep Cisco ISE Network Devices and Network Device Groups in sync with a NetBox source of truth."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "click==8.1.8",
+    "pyise-ers==0.2.0.1",
+    "pynetbox==7.6.1",
+    "deepdiff==5.8.1",
+    "PyYAML==6.0.1",
+    "rich==12.5.1",
+    "urllib3==1.26.6",
+    "ciscoisesdk==2.3.1",
+]
+
+[project.scripts]
+netbox2ise = "netbox2ise.netbox2ise:cli"
+
+[tool.setuptools.packages.find]
+include = ["netbox2ise*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml"]

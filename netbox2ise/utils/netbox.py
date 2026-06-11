@@ -3,18 +3,43 @@ This is a set of NetBox related functions used to retrieve data from NetBox
 """
 
 import pynetbox
+import requests
+import urllib3
 from requests import exceptions
 from pynetbox.core.query import RequestError
+
+
+def build_nb_api(netbox_server):
+    """
+    Build a pynetbox API client, with an optional ``verify`` flag on the
+    ``netbox_server`` dict to disable TLS certificate verification, and an
+    optional ``ca_cert`` path pointing at a CA bundle file or directory used
+    to validate the NetBox server certificate.
+    """
+    nb = pynetbox.api(netbox_server["url"], token=netbox_server["token"])
+    verify = netbox_server.get("verify", False)
+    ca_cert = netbox_server.get("ca_cert")
+    session = requests.Session()
+    if verify is False:
+        session.verify = False
+        # Disable the InsecureRequestWarning shown by urllib when verify=False is used
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    elif ca_cert:
+        session.verify = ca_cert
+    else:
+        session.verify = True
+    nb.http_session = session
+    return nb
 
 
 def verify_netbox(netbox_server):
     """
     Verify a NetBox Server is reachable
 
-    :param netbox_server: A dictionary {"url": "http://netbox.address.local", "token": "API Token"}
+    :param netbox_server: A dictionary {"url": "http://netbox.address.local", "token": "API Token", "verify": True}
     :return status dictionary
     """
-    nb = pynetbox.api(netbox_server["url"], token=netbox_server["token"])
+    nb = build_nb_api(netbox_server)
     try:
         status = nb.status()
     except RequestError as e:
@@ -24,10 +49,10 @@ def verify_netbox(netbox_server):
             "status": True,
             "message": f"Successfully connected to NetBox to query devices.",
         }
-    except exceptions.ConnectionError:
+    except exceptions.ConnectionError as error:
         return {
             "status": False,
-            "message": f"Error connecting to NetBox Server at url {netbox_server.url}.",
+            "message": f"Error connecting to NetBox Server at url {netbox_server['url']}. Error: {error}",
         }
 
     status_message = f"NetBox Version: {status['netbox-version']}, Python Version: {status['python-version']}, Plugins: {status['plugins']}, Workers Running: {status['rq-workers-running']}"
@@ -78,7 +103,7 @@ def lookup_nb_devices(
     """
 
     try:
-        nb = pynetbox.api(netbox_server["url"], token=netbox_server["token"])
+        nb = build_nb_api(netbox_server)
 
         device_query = {}
         vm_query = {}
